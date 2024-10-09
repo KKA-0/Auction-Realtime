@@ -1,28 +1,23 @@
-// socket.ts
 import { Server } from "socket.io";
-import { Server as HttpServer } from "http"; // Import the HTTP server type
-import express from 'express';
-const app = express();
+import { Server as HttpServer } from "http";
 
-export const initSocket = (httpServer: HttpServer) => { // Specify the type here
+export const initSocket = (httpServer: HttpServer) => {
     const io = new Server(httpServer, {
         cors: {
-            origin: "*",  // Adjust according to your requirements
+            origin: "*",
             methods: ["GET", "POST"],
         },
     });
 
     io.on("connection", (socket) => {
-        console.log("A user connected"); // Log when a user connects
-        console.log(`Socket ${socket.id} is ready and running`); // Log the socket ID
+        console.log("A user connected");
+        console.log(`Socket ${socket.id} is ready and running`);
 
-        // Add your socket event handlers here
 
         socket.on("disconnect", () => {
-            console.log(`User disconnected, socket ID: ${socket.id}`); // Log when a user disconnects
+            console.log(`User disconnected, socket ID: ${socket.id}`);
         });
     });
 
-    // Return the io instance if needed
     return io;
 };
