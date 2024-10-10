@@ -5,7 +5,9 @@ const http = require('http');
 const mongoose = require('mongoose')
 import { initSocket } from './socket';
 var bodyParser = require('body-parser')
+var cors = require('cors')
 
+app.use(cors())
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json

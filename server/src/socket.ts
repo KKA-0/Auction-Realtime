@@ -10,9 +10,7 @@ export const initSocket = (httpServer: HttpServer) => {
     });
 
     io.on("connection", (socket) => {
-        console.log("A user connected");
         console.log(`Socket ${socket.id} is ready and running`);
-
 
         socket.on("disconnect", () => {
             console.log(`User disconnected, socket ID: ${socket.id}`);

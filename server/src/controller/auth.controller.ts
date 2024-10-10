@@ -10,15 +10,19 @@ export const token = async (req: Request, res: Response, next: NextFunction) => 
             : req.cookies?.jwt;
 
         if (!token) {
-            return res.status(401).json({ error: 'Token not provided' });
+            res.status(401).json({ error: 'Token not provided' });
         }
 
-        const { email } = jwt.verify(token, "gg");
+        const { email } = jwt.verify(token, "gg") as { email: string };
 
-        const user = await users.findOne({ email });
+        const user = await users.findOne({ email }, { username: 1, email: 1 });
 
         if (!user) {
-            return res.status(404).json({ error: 'User not found' });
+            res.status(404).json({ error: 'User not found' });
+        }
+
+        if (req.method === 'GET' && req.path === '/token') {
+            res.status(200).json({ userId: user._id, email: user.email, username: user.username });
         }
 
         next();
