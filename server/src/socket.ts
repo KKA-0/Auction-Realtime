@@ -12,6 +12,12 @@ export const initSocket = (httpServer: HttpServer) => {
     io.on("connection", (socket) => {
         console.log(`Socket ${socket.id} is ready and running`);
 
+        socket.on('bid', (bid) => {
+            const {productId, userId, price, username} = bid
+            console.log(bid);
+            io.emit('bid', {productId, userId, price, username});
+          });
+
         socket.on("disconnect", () => {
             console.log(`User disconnected, socket ID: ${socket.id}`);
         });
