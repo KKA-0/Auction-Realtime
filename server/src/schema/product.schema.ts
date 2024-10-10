@@ -10,7 +10,10 @@ const BidSchema = new Schema({
       type: Number,
       required: true,
     },
-    createdAt: new Date()
+    createdAt: {
+      type: Date,
+      default: Date.now
+    }
   });
 
 const productSchema = new Schema({
@@ -22,7 +25,14 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
-  createdAt: new Date(),
+  Price: {
+    type: Number,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
   Bidders: [BidSchema]
 
 });
