@@ -11,8 +11,11 @@ import BidTimer from './../widgets/BidTimer';
 import BidButton from './../widgets/BidButton';
 import BidderList from './../widgets/BidderList';
 import Button from '@mui/material/Button';
+import { useDispatch } from "react-redux" 
+import { newProduct } from "./../features/product.slice"
 
 export default function Cards({ product }) {
+  const dispatch = useDispatch()
   const [price, setPrice] = useState(product.Price || 0);
   const [time, setTime] = useState(30);
   const [Bidder, setBidder] = useState([]);
@@ -73,6 +76,18 @@ export default function Cards({ product }) {
 
     return () => {
       socket.off('bid', handleBidEvent);
+    };
+  }, [product._id]);
+
+  useEffect(() => {
+    const handleAddprod = (data) => {
+      dispatch(newProduct(data))
+    };
+
+    socket.on('newProd', handleAddprod);
+
+    return () => {
+      socket.off('newProd', handleAddprod);
     };
   }, [product._id]);
 

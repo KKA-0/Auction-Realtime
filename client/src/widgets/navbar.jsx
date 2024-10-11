@@ -12,6 +12,7 @@ import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import Button from '@mui/material/Button';
+import FormDialog from "./FormDialog"
 
 export default function Navbar() {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -26,12 +27,7 @@ export default function Navbar() {
   };
 
   const handleLogout = () => {
-    // Remove the token cookie
     Cookies.remove('token');
-
-    // Optionally, clear any user state in Redux (dispatch an action if necessary)
-
-    // Reload the page
     window.location.reload();
   };
 
@@ -51,15 +47,20 @@ export default function Navbar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Auctions
           </Typography>
+          
           {!username ? (
-            <Button component={Link} to="/login" color="inherit">
-              Login
-            </Button>
+            <>
+              <Button component={Link} to="/signup" color="inherit">
+                Signup
+              </Button>
+            </>
           ) : (
-            <div>
+            <>
+              <FormDialog />
               <Typography variant="body1" color="inherit" sx={{ mr: 2 }}>
                 {username}
               </Typography>
+            <div>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -67,7 +68,7 @@ export default function Navbar() {
                 aria-haspopup="true"
                 onClick={handleMenu}
                 color="inherit"
-              >
+                >
                 <AccountCircle />
               </IconButton>
               <Menu
@@ -84,12 +85,13 @@ export default function Navbar() {
                 }}
                 open={Boolean(anchorEl)}
                 onClose={handleClose}
-              >
+                >
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
                 <MenuItem onClick={handleClose}>My account</MenuItem>
                 <MenuItem onClick={handleLogout}>Logout</MenuItem> {/* Logout button */}
               </Menu>
             </div>
+            </>
           )}
         </Toolbar>
       </AppBar>

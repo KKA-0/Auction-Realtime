@@ -19,7 +19,7 @@ export default function Home() {
 
   return (
     <>  
-    <div style={{display: "flex"}}>
+    <div style={{display: "flex", flexWrap: "wrap"}}>
       {loading ? (
         
         <p>Loading...</p>

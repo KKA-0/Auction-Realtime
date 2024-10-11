@@ -1,8 +1,8 @@
 import { createSlice, createAsyncThunk, current } from '@reduxjs/toolkit';
-import axios from 'axios'; // Ensure axios is imported
+import axios from 'axios';
 
 const initialState = {
-  products: {}, // Add products array to the initial state
+  products: {},
 };
 
 export function getCookie(name) {
@@ -70,6 +70,16 @@ const productSlice = createSlice({
     addProducts: (state, action) => {
       state.products = action.payload;
     },
+    newProduct: (state, action) => {
+      const id = action.payload._id
+      return {
+        ...state,
+        products: {
+          ...state.products,
+          [id]: action.payload,
+        },
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -90,5 +100,5 @@ const productSlice = createSlice({
   },
 });
 
-export const { addProducts } = productSlice.actions;
+export const { addProducts, newProduct } = productSlice.actions;
 export default productSlice.reducer;
