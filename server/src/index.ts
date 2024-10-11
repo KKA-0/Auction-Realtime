@@ -18,7 +18,7 @@ const httpServer = http.createServer(app);
 const user = require("./routes/user.route")
 const product = require("./routes/products.route")
 
-mongoose.connect('mongodb://localhost:27017/auction')
+mongoose.connect(process.env.DB_URI)
     .then(() => {
         console.log("DB connected...");
     })
