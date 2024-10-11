@@ -6,7 +6,7 @@ const mongoose = require('mongoose')
 import { initSocket } from './socket';
 var bodyParser = require('body-parser')
 var cors = require('cors')
-
+require('dotenv').config({ path: "./.env" })
 app.use(cors())
 // parse application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: false }))

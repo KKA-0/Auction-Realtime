@@ -18,7 +18,7 @@ export default function Login() {
     const email = formData.get('email')
     const password = formData.get('password')
     if(email != "" && password != "")
-      axios.post('http://localhost:3000/api/user/login', {email: formData.get('email'), password: formData.get('password')})
+      axios.post(`${import.meta.env.VITE_APP_DOMAIN}/api/user/login`, {email: formData.get('email'), password: formData.get('password')})
       .then(function (response) {
         document.cookie = `token=${response.data.token}`;
         dispatch(addUser(response.data))

@@ -6,6 +6,10 @@ const BidSchema = new Schema({
       type: String,
       required: true,
     },
+    username: {
+      type: String,
+      required: true,
+    },
     Price: {
       type: Number,
       required: true,

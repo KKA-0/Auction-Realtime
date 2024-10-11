@@ -22,7 +22,7 @@ const useAuthentication = () => {
                             Authorization: `Bearer ${tokenValue}`,
                         },
                     }
-                    const response = await axios.get(`http://localhost:3000/api/user/token`, axiosHead);
+                    const response = await axios.get(`${import.meta.env.VITE_APP_DOMAIN}/api/user/token`, axiosHead);
                     dispatch(addUser({email: response.data.email, username: response.data.username, userId: response.data.userId}));
                     setIsAuthenticated(true);
                 } else {

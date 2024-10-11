@@ -1,45 +1,90 @@
+// Cards.js
 import React, { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { socket } from './../sockets/socket';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
+import ProductImage from './../widgets/ProductImage';
+import BidTimer from './../widgets/BidTimer';
+import BidButton from './../widgets/BidButton';
+import BidderList from './../widgets/BidderList';
+import Button from '@mui/material/Button';
 
 export default function Cards({ product }) {
-  const [price, setPrice] = useState(product.Price);
+  const [price, setPrice] = useState(product.Price || 0);
   const [time, setTime] = useState(30);
-  const [Bidder, setBidder] = useState(["karan"]);
-  const [lastBidder, setLastBidder] = useState(null); 
+  const [Bidder, setBidder] = useState([]);
+  const [lastBidder, setLastBidder] = useState(null);
   const userId = useSelector((state) => state.user.userId);
   const username = useSelector((state) => state.user.username);
   const [currentUser] = useState(userId);
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    return parts.length === 2 ? parts.pop().split(';').shift() : null;
+  }
+
+  const handleBidAPI = async ({ productId, userId, price, username }) => {
+    const token = getCookie('token');
+    try {
+      const response = await axios.patch(`${import.meta.env.VITE_APP_DOMAIN}/api/product/bid/${productId}`, {
+        newBid: {
+          userId,
+          username,
+          Price: price,
+        },
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
-    socket.on('bid', ({ productId, userId, price, username }) => {
+    if (product && product.Bidders) {
+      setBidder((prevBidder) => {
+        const existingBidders = new Set(prevBidder);
+        const newBidders = product.Bidders.map(bid => bid.username || 'Unknown User')
+          .filter(username => !existingBidders.has(username));
+        return [ ...prevBidder, ...newBidders.reverse()];
+      });
+    }
+  }, [product]);
+
+  useEffect(() => {
+    const handleBidEvent = ({ productId, userId, price, username }) => {
       if (productId === product._id) {
         resetTimer();
         setPrice(price);
         setLastBidder(userId);
         setBidder(prevBidder => [username, ...prevBidder]);
       }
-    });
+    };
+
+    socket.on('bid', handleBidEvent);
 
     return () => {
-      socket.off('bid');
+      socket.off('bid', handleBidEvent);
     };
   }, [product._id]);
 
   const handleAddBid = () => {
     const newPrice = price + 5;
     socket.emit('bid', { productId: product._id, userId: currentUser, price: newPrice, username });
-    setPrice(newPrice); // Optimistic UI update
-    setLastBidder(currentUser); // Set the current user as the last bidder
+    setPrice(newPrice);
+    setLastBidder(currentUser);
+    handleBidAPI({ productId: product._id, userId: currentUser, price: newPrice, username });
   };
 
   const handleBuy = () => {
-    // Handle the buy action
     console.log("Product bought by:", currentUser);
   };
 
@@ -50,25 +95,32 @@ export default function Cards({ product }) {
   useEffect(() => {
     if (time > 0) {
       const timer = setTimeout(() => {
-        setTime(time - 1);
+        setTime(prevTime => prevTime - 1);
       }, 1000);
       return () => clearTimeout(timer);
+    }else{
+      const findWinner = async () => {
+      const token = getCookie('token');
+      try {
+        const response = await axios.get(`${import.meta.env.VITE_APP_DOMAIN}/api/product/bid/${product._id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+        setLastBidder(response.data.lastBid.userId) 
+      } catch (error) {
+        console.error(error);
+      }
+
+      }
+      findWinner()
     }
   }, [time]);
 
   return (
     <Card sx={{ maxWidth: 345, margin: '10px' }}>
-      <CardMedia
-        component="img"
-        alt={product.Name}
-        height="140"
-        image={product.Image}
-      />
-      {time !== 0 ? (
-        <Typography sx={{ color: 'red' }} size="medium">
-          Live
-        </Typography>
-      ) : null}
+      <ProductImage image={product.Image} name={product.Name} />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
           {product.Name}
@@ -77,25 +129,14 @@ export default function Cards({ product }) {
           {/* Product description here */}
         </Typography>
       </CardContent>
-      <CardActions>
-        <Typography size="medium">Timer: {time} Secs</Typography>
-        <Button size="large">${price}</Button>
-        <Button size="medium" disabled={time === 0} onClick={handleAddBid}>
-          Add Bid
+      <BidTimer time={time} />
+      <BidButton price={price} onBid={handleAddBid} isDisabled={time === 0} />
+      {lastBidder === currentUser && time === 0 && (
+        <Button size="medium" color="primary" onClick={handleBuy}>
+          Buy
         </Button>
-        {lastBidder === currentUser && time === 0 ? (
-          <Button size="medium" color="primary" onClick={handleBuy}>
-            Buy
-          </Button>
-        ) : null}
-      </CardActions>
-      <div style={{ width: '100%', height: '100px', overflowY: 'scroll' }}>
-      {
-        Bidder.map((item, key) => <div key={key} style={{ height: '30px', display: 'flex', alignItems: 'center' }}>
-        <span>{item}</span>
-      </div>)
-      }
-      </div>
+      )}
+      <BidderList bidders={Bidder} />
     </Card>
   );
 }

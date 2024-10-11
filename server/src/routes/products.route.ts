@@ -8,7 +8,8 @@ router
     .get(auth.token, product.Product)
     .post(auth.token, product.newProduct)
 router
-    .route("/bid")
+    .route("/bid/:productId")
+    .get(auth.token, product.winner)
     .patch(auth.token, product.newbid)
 
 module.exports = router

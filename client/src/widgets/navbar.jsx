@@ -1,4 +1,7 @@
 import * as React from 'react';
+import { useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie'; // Import js-cookie
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -6,19 +9,13 @@ import Typography from '@mui/material/Typography';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormGroup from '@mui/material/FormGroup';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
+import Button from '@mui/material/Button';
 
 export default function Navbar() {
-  const [auth, setAuth] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const handleChange = (event) => {
-    setAuth(event.target.checked);
-  };
+  const username = useSelector((state) => state.user.username); // Assuming your Redux state has user information
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -28,20 +25,18 @@ export default function Navbar() {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    // Remove the token cookie
+    Cookies.remove('token');
+
+    // Optionally, clear any user state in Redux (dispatch an action if necessary)
+
+    // Reload the page
+    window.location.reload();
+  };
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-      {/* <FormGroup>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={auth}
-              onChange={handleChange}
-              aria-label="login switch"
-            />
-          }
-          label={auth ? 'Logout' : 'Login'}
-        />
-      </FormGroup> */}
       <AppBar position="static">
         <Toolbar>
           <IconButton
@@ -56,8 +51,15 @@ export default function Navbar() {
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Auctions
           </Typography>
-          {auth && (
+          {!username ? (
+            <Button component={Link} to="/login" color="inherit">
+              Login
+            </Button>
+          ) : (
             <div>
+              <Typography variant="body1" color="inherit" sx={{ mr: 2 }}>
+                {username}
+              </Typography>
               <IconButton
                 size="large"
                 aria-label="account of current user"
@@ -85,6 +87,7 @@ export default function Navbar() {
               >
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
                 <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem> {/* Logout button */}
               </Menu>
             </div>
           )}

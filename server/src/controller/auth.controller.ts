@@ -10,10 +10,10 @@ export const token = async (req: Request, res: Response, next: NextFunction) => 
             : req.cookies?.jwt;
 
         if (!token) {
-            res.status(401).json({ error: 'Token not provided' });
+            return res.status(401).json({ error: 'Token not provided' });
         }
 
-        const { email } = jwt.verify(token, "gg") as { email: string };
+        const { email } = jwt.verify(token, process.env.SECRET_JWT) as { email: string };
 
         const user = await users.findOne({ email }, { username: 1, email: 1 });
 

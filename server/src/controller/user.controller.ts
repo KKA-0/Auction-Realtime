@@ -21,7 +21,7 @@ const CheckHASH = async (hashed: string, providePass: string) => {
 }
 
 // Generates a JWT token for the user
-const generateToken = (userData: userData) => jwt.sign(userData, "gg");
+const generateToken = (userData: userData) => jwt.sign(userData, process.env.SECRET_JWT);
 
 export const signup = async (req: Request, res: Response) => {
     const { username, email, password } = req.body

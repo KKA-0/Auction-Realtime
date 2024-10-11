@@ -18,12 +18,17 @@ export default function Home() {
   if (!isAuthenticated) return null;
 
   return (
-    <>
+    <>  
+    <div style={{display: "flex"}}>
       {loading ? (
+        
         <p>Loading...</p>
       ) : (
-        products.map((item, key) => <Cards product={item} key={key} />)
+        Object.values(products).map((item, index) => (
+          <Cards product={item} key={item._id} />
+      ))
       )}
+      </div>
     </>
   );
 }
