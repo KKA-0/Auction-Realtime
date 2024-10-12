@@ -42,6 +42,7 @@ export default function Cards({ product }) {
           'Content-Type': 'application/json',
         },
       });
+      socket.emit('bid', { productId, userId, price, username });
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -98,7 +99,6 @@ export default function Cards({ product }) {
 
   const handleAddBid = () => {
     const newPrice = price + 5;
-    socket.emit('bid', { productId: product._id, userId: currentUser, price: newPrice, username });
     setPrice(newPrice);
     setLastBidder(currentUser);
     handleBidAPI({ productId: product._id, userId: currentUser, price: newPrice, username });
