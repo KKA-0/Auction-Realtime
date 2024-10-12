@@ -40,3 +40,11 @@ npm run start
 
 
 ``client port:``  http://localhost:3000/
+
+
+
+
+
+https://github.com/user-attachments/assets/5c9efae5-d4ba-4c30-a789-eed962a0f97f
+
+
