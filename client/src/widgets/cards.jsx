@@ -51,6 +51,21 @@ export default function Cards({ product }) {
     }
   };
 
+  const buyPhase = (data) => {
+    const currentTime = new Date();
+    const lastBidPlusTenMins = new Date(data);
+    lastBidPlusTenMins.setSeconds(lastBidPlusTenMins.getSeconds() + 30);
+    lastBidPlusTenMins.setMinutes(lastBidPlusTenMins.getMinutes() + 10);
+    
+    // Calculate the remaining buy timer
+    const remainingBuyTime = Math.max(0, Math.floor((lastBidPlusTenMins - currentTime) / 1000));
+
+    if (remainingBuyTime > 0) {
+      setBuyTimer(remainingBuyTime);
+    }
+
+  }
+
   useEffect(() => {
     const currentTime = new Date();
     const lastBidDeadline = new Date(product.lastBidAt);
@@ -129,6 +144,7 @@ export default function Cards({ product }) {
             },
           });
           setLastBidder(response.data.lastBid.userId);
+          buyPhase(response.data.lastBid.createdAt)
         } catch (error) {
           console.error(error);
         }
@@ -173,8 +189,8 @@ export default function Cards({ product }) {
           $ {price.toFixed(2)}
         </Typography>
       </CardContent>
-      {lastBidder === currentUser && time === 0 && isBuyButtonDisabled === false && (
-        <Button size="medium" color="primary" onClick={handleBuy}>
+      {lastBidder === currentUser && time === 0 && (
+        <Button size="medium" disabled={isBuyButtonDisabled} color="primary" onClick={handleBuy}>
           Buy
         </Button>
       )}
