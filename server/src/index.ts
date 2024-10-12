@@ -17,10 +17,12 @@ const httpServer = http.createServer(app);
 
 const user = require("./routes/user.route")
 const product = require("./routes/products.route")
+import { initializeproductsTimers } from "./Realtime/sold"
 
 mongoose.connect(process.env.DB_URI)
     .then(() => {
         console.log("DB connected...");
+        initializeproductsTimers()
     })
     .catch((err: Error) => {
         console.log("DB connection lost...", err.message);

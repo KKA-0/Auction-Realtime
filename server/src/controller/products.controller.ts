@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Error } from 'mongoose';
 const products = require("./../schema/product.schema") 
-
+import { auctionTimers } from "./../Realtime/sold"
 
 export const Product = async (req: Request, res: Response) => {
     try{
@@ -15,6 +15,7 @@ export const Product = async (req: Request, res: Response) => {
 export const newProduct = async (req: Request, res: Response) => {
     try{
         const newProduct = await products.create(req.body)
+        auctionTimers.set(newProduct._id, newProduct.lastBidAt)
         res.status(201).json(newProduct)
     }catch(err){
         res.status(400).json({ error: err || 'An error occurred while creating the Product.' });
@@ -46,6 +47,7 @@ export const newbid = async (req: Request, res: Response) => {
         product.Price += 5;
         product.lastBidAt = currentTime;
         await product.save();
+        auctionTimers.set(product._id, product.currentTime)
 
         res.status(201).json({ success: true, message: 'Bid added successfully', product });
     } catch (err) {

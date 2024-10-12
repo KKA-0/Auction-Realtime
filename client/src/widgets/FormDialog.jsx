@@ -99,11 +99,10 @@ export default function FormDialog() {
           />
           <TextField
             autoFocus
-            required
             margin="dense"
             id="image"
             name="image"
-            label="Image URI"
+            label="Image URI (Optional)"
             type="text"
             fullWidth
             variant="standard"

@@ -27,7 +27,6 @@ const productSchema = new Schema({
   },
   Image: {
     type: String,
-    required: true,
   },
   Price: {
     type: Number,
@@ -40,6 +39,10 @@ const productSchema = new Schema({
   lastBidAt: {
     type: Date,
     default: Date.now
+  },
+  sold: {
+    type: Boolean,
+    default: false
   },
   Bidders: [BidSchema]
 

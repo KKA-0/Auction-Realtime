@@ -1,4 +1,3 @@
-// Cards.js
 import React, { useState, useEffect } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
@@ -17,6 +16,7 @@ export default function Cards({ product }) {
   const [time, setTime] = useState(30);
   const [Bidder, setBidder] = useState([]);
   const [lastBidder, setLastBidder] = useState(null);
+  const [buyTimer, setBuyTimer] = useState(0);
   const userId = useSelector((state) => state.user.userId);
   const username = useSelector((state) => state.user.username);
   const [currentUser] = useState(userId);
@@ -49,13 +49,24 @@ export default function Cards({ product }) {
   };
 
   useEffect(() => {
-      
     const currentTime = new Date();
     const lastBidDeadline = new Date(product.lastBidAt);
     lastBidDeadline.setSeconds(lastBidDeadline.getSeconds() + 30);
 
+    // Check if the auction has ended
     if (currentTime > lastBidDeadline) {
-      setTime(0)
+      setTime(0);
+    }
+
+    // Calculate remaining buy timer
+    const lastBidPlusTenMins = new Date(product.lastBidAt);
+    lastBidPlusTenMins.setMinutes(lastBidPlusTenMins.getMinutes() + 10);
+    
+    // Calculate the remaining buy timer
+    const remainingBuyTime = Math.max(0, Math.floor((lastBidPlusTenMins - currentTime) / 1000));
+
+    if (remainingBuyTime > 0) {
+      setBuyTimer(remainingBuyTime);
     }
 
     if (product && product.Bidders) {
@@ -63,7 +74,7 @@ export default function Cards({ product }) {
         const existingBidders = new Set(prevBidder);
         const newBidders = product.Bidders.map(bid => bid.username || 'Unknown User')
           .filter(username => !existingBidders.has(username));
-        return [ ...prevBidder, ...newBidders.reverse()];
+        return [...prevBidder, ...newBidders.reverse()];
       });
     }
   }, [product]);
@@ -107,43 +118,71 @@ export default function Cards({ product }) {
         setTime(prevTime => prevTime - 1);
       }, 1000);
       return () => clearTimeout(timer);
-    }else{
+    } else {
       const findWinner = async () => {
-      const token = getCookie('token');
-      try {
-        const response = await axios.get(`${import.meta.env.VITE_APP_DOMAIN}/api/product/bid/${product._id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-        setLastBidder(response.data.lastBid.userId) 
-      } catch (error) {
-        console.error(error);
-      }
-
-      }
-      findWinner()
+        const token = getCookie('token');
+        try {
+          const response = await axios.get(`${import.meta.env.VITE_APP_DOMAIN}/api/product/bid/${product._id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+          setLastBidder(response.data.lastBid.userId);
+        } catch (error) {
+          console.error(error);
+        }
+      };
+      findWinner();
     }
   }, [time]);
 
+  useEffect(() => {
+    if (buyTimer > 0) {
+      const timer = setTimeout(() => {
+        setBuyTimer(prevTimer => prevTimer - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [buyTimer]);
+
+  const isBuyButtonDisabled = buyTimer === 0;
+
   return (
-    <Card sx={{ maxWidth: 345, margin: '10px' }}>
-      <ProductImage image={product.Image} name={product.Name} />
+      <Card
+        sx={{
+          maxWidth: 345,
+          margin: '10px',
+          minWidth: 325,
+          boxShadow: 'rgba(6, 24, 44, 0.4) 0px 0px 0px 2px, rgba(6, 24, 44, 0.65) 0px 4px 6px -1px, rgba(255, 255, 255, 0.08) 0px 1px 0px inset'
+        }}
+      >
+      <ProductImage image={product.Image || "https://st4.depositphotos.com/14953852/22772/v/450/depositphotos_227725020-stock-illustration-image-available-icon-flat-vector.jpg"} name={product.Name} />
+      
+      {
+        time > 0 && (
+          <Typography sx={{ color: 'red', margin: "5px" }} size="medium">Live</Typography>
+        )
+      }
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
           {product.Name}
         </Typography>
+      <BidTimer time={time} />
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {/* Product description here */}
+          $ {price.toFixed(2)}
         </Typography>
       </CardContent>
-      <BidTimer time={time} />
-      <BidButton price={price} onBid={handleAddBid} isDisabled={time === 0} />
-      {lastBidder === currentUser && time === 0 && (
+      {lastBidder === currentUser && time === 0 && isBuyButtonDisabled === false && (
         <Button size="medium" color="primary" onClick={handleBuy}>
           Buy
         </Button>
+      )}
+      <BidButton price={price} onBid={handleAddBid} isDisabled={time === 0} />
+      {lastBidder === currentUser && time === 0 && (
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+          Buy button available for: {Math.floor(buyTimer / 60)}:{(buyTimer % 60).toString().padStart(2, '0')}
+        </Typography>
       )}
       <BidderList bidders={Bidder} />
     </Card>
