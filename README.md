@@ -39,7 +39,7 @@ npm run start
 ```
 
 
-``client port:``  http://localhost:3000/
+``server port:``  http://localhost:3000/
 
 
 
