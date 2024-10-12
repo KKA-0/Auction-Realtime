@@ -49,6 +49,15 @@ export default function Cards({ product }) {
   };
 
   useEffect(() => {
+      
+    const currentTime = new Date();
+    const lastBidDeadline = new Date(product.lastBidAt);
+    lastBidDeadline.setSeconds(lastBidDeadline.getSeconds() + 30);
+
+    if (currentTime > lastBidDeadline) {
+      setTime(0)
+    }
+
     if (product && product.Bidders) {
       setBidder((prevBidder) => {
         const existingBidders = new Set(prevBidder);

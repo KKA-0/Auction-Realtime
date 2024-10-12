@@ -37,6 +37,10 @@ const productSchema = new Schema({
     type: Date,
     default: Date.now
   },
+  lastBidAt: {
+    type: Date,
+    default: Date.now
+  },
   Bidders: [BidSchema]
 
 });

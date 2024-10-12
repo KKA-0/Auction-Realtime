@@ -22,24 +22,37 @@ export const newProduct = async (req: Request, res: Response) => {
 }
 
 export const newbid = async (req: Request, res: Response) => {
-    const { productId } = req.params
+    const { productId } = req.params;
     const { newBid } = req.body;
-    try{
+
+    try {
         const product = await products.findById(productId);
 
         if (!product) {
-            return { success: false, message: 'Product not found' };
+            return res.status(404).json({ success: false, message: 'Product not found' });
+        }
+
+        const lastBidAt = product.lastBidAt || product.createdAt;
+
+        const currentTime = new Date();
+        const lastBidDeadline = new Date(lastBidAt);
+        lastBidDeadline.setSeconds(lastBidDeadline.getSeconds() + 30);
+
+        if (currentTime > lastBidDeadline) {
+            return res.status(400).json({ success: false, message: 'Bidding time has ended for this product' });
         }
 
         product.Bidders.push(newBid);
         product.Price += 5;
+        product.lastBidAt = currentTime;
         await product.save();
-        
-        res.status(201).json({ success: true, message: 'Bid added successfully', product })
-    }catch(err){
-        res.status(400).json({ error: err || 'An error occurred while Add the Bid.' });
+
+        res.status(201).json({ success: true, message: 'Bid added successfully', product });
+    } catch (err) {
+        res.status(400).json({ error: err || 'An error occurred while adding the bid.' });
     }
-}
+};
+
 
 export const winner = async (req: Request, res: Response) => {
 
