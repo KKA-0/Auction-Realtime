@@ -6,10 +6,14 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { socket } from "./../sockets/socket"
-import axios from "axios"
+import { socket } from "./../sockets/socket";
+import axios from "axios";
+import { newProduct } from "./../features/product.slice";
+import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 
 export default function FormDialog() {
+  const dispatch = useDispatch();
   const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
@@ -28,6 +32,16 @@ export default function FormDialog() {
     }
     return null;
   }
+
+  useEffect(() => {
+    socket.on('newProd', (data) => {
+      dispatch(newProduct(data));
+    });
+
+    return () => {
+      socket.off('newProd');
+    };
+  }, [dispatch]);
 
   return (
     <React.Fragment>
@@ -57,18 +71,17 @@ export default function FormDialog() {
               }
             )
               .then(function (response) {
-                const { _id, Name, Image, Price, Bidders } = response.data
+                const { _id, Name, Image, Price, Bidders } = response.data;
                 socket.emit('newProd', { _id, Name, Image, Price, Bidders });
-                dispatch(newProduct({ _id, Name, Image, Price, Bidders }))
+                dispatch(newProduct({ _id, Name, Image, Price, Bidders }));
               })
               .catch(function (error) {
                 console.log(error);
-              })
+              });
             handleClose();
           },
         }}
       >
-        {/* <DialogTitle>Subscribe</DialogTitle> */}
         <DialogContent>
           <DialogContentText>
             Add a new product
