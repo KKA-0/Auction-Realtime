@@ -17,9 +17,9 @@ cd client
 npm install
 npm run dev
 ```
-``
-client port: `` http://localhost:5173/``
-``
+
+``client port:``  http://localhost:5173/
+
 
 ### NodeJs - Backend
 
@@ -38,6 +38,5 @@ npm run build
 npm run start
 ```
 
-``
-client port: `` http://localhost:3000/``
-``
+
+``client port:``  http://localhost:3000/
