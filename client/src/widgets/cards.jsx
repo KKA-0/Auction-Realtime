@@ -43,6 +43,8 @@ export default function Cards({ product }) {
         },
       });
       socket.emit('bid', { productId, userId, price, username });
+      setPrice(price);
+      setLastBidder(userId);
       console.log(response.data);
     } catch (error) {
       console.error(error);
@@ -99,8 +101,6 @@ export default function Cards({ product }) {
 
   const handleAddBid = () => {
     const newPrice = price + 5;
-    setPrice(newPrice);
-    setLastBidder(currentUser);
     handleBidAPI({ productId: product._id, userId: currentUser, price: newPrice, username });
   };
 
