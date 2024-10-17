@@ -1,0 +1,13 @@
+name: Fetch API Example
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # This runs every 10 minutes
+
+jobs:
+  fetch_api:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call the API
+        run: |
+          curl -X GET "https://auction-realtime.onrender.com/"
