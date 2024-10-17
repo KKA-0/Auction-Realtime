@@ -2,7 +2,8 @@ name: Prewarm Auction API Every 5 Minutes
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Run every 5 minutes to keep the server warm
+    - cron: '*/5 * * * *'  # Automatically run every 5 minutes
+  workflow_dispatch:  # Allows manual activation
 
 jobs:
   prewarm_server:
@@ -10,5 +11,4 @@ jobs:
     steps:
       - name: Prewarm Auction API
         run: |
-          # Make a request to the API endpoint or directly hit the database
           curl -X GET "https://auction-realtime.onrender.com/"
